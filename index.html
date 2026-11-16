@@ -67,20 +67,20 @@
       <div class="cabeca-secao">
         <p class="rotulo">Legenda</p>
         <h2 id="titulo-servicos">O que entra no mapa</h2>
-        <p>Cada serviço usa o tipo de dado que melhor responde à pergunta: polígonos para limites e exigências legais, raster para o que a imagem de satélite mostra, linhas para os fluxos de processamento, pontos para o que se consulta na web e camadas sobrepostas para levar tudo isso à rotina da empresa.</p>
+        <p>Cada serviço usa o tipo de dado que melhor responde à pergunta: pontos para o que se consulta na web, raster para o que a imagem de satélite mostra, linhas para os fluxos de processamento, camadas sobrepostas para levar tudo isso à rotina da empresa e polígonos para limites e exigências legais.</p>
       </div>
 
       <div class="legenda">
-        <!-- Polígono hachurado: estudos e licenciamento -->
+        <!-- Ponto com halo: WebGIS -->
         <article class="item-legenda">
           <svg viewBox="0 0 56 38" aria-hidden="true">
-            <defs><pattern id="hach" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="var(--magenta)" stroke-width="1.2"/></pattern></defs>
-            <path d="M4 30 L10 6 L34 3 L52 14 L46 34 L18 36 Z" fill="url(#hach)" stroke="var(--tinta)" stroke-width="1.5"/>
+            <circle cx="28" cy="19" r="15" fill="none" stroke="var(--magenta)" stroke-width="1.2" stroke-dasharray="3 3"/>
+            <circle cx="28" cy="19" r="5" fill="var(--tinta)"/>
           </svg>
           <div>
-            <h3>Estudos e licenciamento ambiental</h3>
-            <p>Elaboração e revisão de EIA/RIMA, RAP e relatórios técnicos, laudos para ITR, CAR e PRA, e assistência técnica em perícias.</p>
-            <p class="tags mono">EIA/RIMA · RAP · Laudos · CAR · Perícias</p>
+            <h3>WebGIS e sistemas</h3>
+            <p>Mapas na web, APIs geoespaciais e bots que consultam CAR, PRODES e imagens de satélite sob demanda, para o cliente acompanhar o imóvel sem abrir um SIG.</p>
+            <p class="tags mono">PostGIS · FastAPI · MapLibre · WFS/WMS · Telegram/WhatsApp</p>
           </div>
         </article>
 
@@ -113,21 +113,8 @@
           </div>
         </article>
 
-        <!-- Ponto com halo: WebGIS -->
+        <!-- Camadas sobrepostas: cultura data driven -->
         <article class="item-legenda">
-          <svg viewBox="0 0 56 38" aria-hidden="true">
-            <circle cx="28" cy="19" r="15" fill="none" stroke="var(--magenta)" stroke-width="1.2" stroke-dasharray="3 3"/>
-            <circle cx="28" cy="19" r="5" fill="var(--tinta)"/>
-          </svg>
-          <div>
-            <h3>WebGIS e sistemas</h3>
-            <p>Mapas na web, APIs geoespaciais e bots que consultam CAR, PRODES e imagens de satélite sob demanda, para o cliente acompanhar o imóvel sem abrir um SIG.</p>
-            <p class="tags mono">PostGIS · FastAPI · MapLibre · WFS/WMS · Telegram/WhatsApp</p>
-          </div>
-        </article>
-
-        <!-- Camadas sobrepostas: cultura data driven (ocupa a linha inteira) -->
-        <article class="item-legenda inteiro">
           <svg viewBox="0 0 56 38" aria-hidden="true">
             <path d="M6 30 L28 36 L50 30 L28 24 Z" fill="var(--mata)" opacity=".35" stroke="var(--tinta)" stroke-width="1"/>
             <path d="M6 22 L28 28 L50 22 L28 16 Z" fill="var(--agua)" opacity=".35" stroke="var(--tinta)" stroke-width="1"/>
@@ -137,6 +124,19 @@
             <h3>Cultura data driven</h3>
             <p>Implantação e projetos de mudança para uma cultura orientada por dados: diagnóstico de como a empresa ou a fazenda usa a informação hoje, organização das bases geográficas e de produção, definição de indicadores e painéis, e capacitação da equipe para que as decisões passem a partir dos dados.</p>
             <p class="tags mono">Diagnóstico de maturidade · Governança de dados · Indicadores e painéis · Capacitação de equipes</p>
+          </div>
+        </article>
+
+        <!-- Polígono hachurado: estudos e licenciamento (ocupa a linha inteira) -->
+        <article class="item-legenda inteiro">
+          <svg viewBox="0 0 56 38" aria-hidden="true">
+            <defs><pattern id="hach" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="var(--magenta)" stroke-width="1.2"/></pattern></defs>
+            <path d="M4 30 L10 6 L34 3 L52 14 L46 34 L18 36 Z" fill="url(#hach)" stroke="var(--tinta)" stroke-width="1.5"/>
+          </svg>
+          <div>
+            <h3>Estudos e licenciamento ambiental</h3>
+            <p>Elaboração e revisão de EIA/RIMA, RAP e relatórios técnicos, laudos para ITR, CAR e PRA, e assistência técnica em perícias.</p>
+            <p class="tags mono">EIA/RIMA · RAP · Laudos · CAR · Perícias</p>
           </div>
         </article>
       </div>
