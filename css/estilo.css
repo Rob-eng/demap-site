@@ -224,6 +224,8 @@ body::before {                  /* pinta a faixa de safe-area no topo */
   min-width: 0;
 }
 .item-legenda svg { width: 3.5rem; height: 2.4rem; overflow: visible; }
+.item-legenda.inteiro { grid-column: 1 / -1; }   /* 5º item ocupa a linha toda */
+.item-legenda.inteiro p { max-width: 80ch; }
 .item-legenda h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
 .item-legenda p { font-size: 0.98rem; color: var(--tinta-2); }
 .item-legenda .tags { margin-top: 0.8rem; color: var(--tinta-2); }
