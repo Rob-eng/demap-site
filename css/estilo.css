@@ -1,0 +1,315 @@
+/* =====================================================================
+   DeMap · demap.com.br — folha de estilo principal
+   ---------------------------------------------------------------------
+   Conceito: "folha topográfica". Fundo de papel verde-acinzentado,
+   curvas de nível em sépia, água em azul, vegetação em verde e o
+   magenta de sobreimpressão (cor usada em quadrículas e anotações de
+   cartas) como único acento.
+   Layout: coluna editorial larga; o hero é um campo de curvas de nível
+   desenhado em <canvas> com leitura de coordenadas sob o cursor.
+   ===================================================================== */
+
+/* ---------- 1. Tokens (tema claro = padrão) ---------- */
+:root {
+  /* Cores */
+  --papel: #e9eee8;        /* fundo, papel da carta            */
+  --papel-2: #dfe6df;      /* faixas alternadas                */
+  --tinta: #15211b;        /* texto principal                  */
+  --tinta-2: #4a5a51;      /* texto secundário                 */
+  --curva: #9a6a3a;        /* curvas de nível (sépia)          */
+  --agua: #1d5b86;         /* hidrografia                      */
+  --mata: #3f6a3c;         /* vegetação                        */
+  --magenta: #b0246a;      /* acento: sobreimpressão           */
+  --linha: rgba(21, 33, 27, 0.16); /* fios e divisórias        */
+
+  /* Tipografia */
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif; /* usada em largura 125 (expandida) */
+  --f-texto: "Public Sans", "Segoe UI", Roboto, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Escala tipográfica (razão ~1.25) */
+  --t-xs: 0.75rem;
+  --t-sm: 0.875rem;
+  --t-md: 1.0625rem;
+  --t-lg: 1.375rem;
+  --t-xl: clamp(1.75rem, 3.2vw, 2.5rem);
+  --t-hero: clamp(2.4rem, 7.2vw, 5.6rem);
+
+  /* Espaçamento e medidas */
+  --largura: 72rem;
+  --gutter: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-d: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* Tema escuro: segue o sistema, a menos que o usuário force o claro */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papel: #0f1612;
+    --papel-2: #141d18;
+    --tinta: #e4ebe5;
+    --tinta-2: #a3b2a8;
+    --curva: #c08a55;
+    --agua: #6fa8d3;
+    --mata: #86b07e;
+    --magenta: #e2589c;
+    --linha: rgba(228, 235, 229, 0.14);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papel: #0f1612;
+  --papel-2: #141d18;
+  --tinta: #e4ebe5;
+  --tinta-2: #a3b2a8;
+  --curva: #c08a55;
+  --agua: #6fa8d3;
+  --mata: #86b07e;
+  --magenta: #e2589c;
+  --linha: rgba(228, 235, 229, 0.14);
+  color-scheme: dark;
+}
+
+/* ---------- 2. Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--f-texto);
+  font-size: var(--t-md);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--f-display);
+  font-stretch: 125%;           /* Archivo expandida: letreiro de carta */
+  font-variation-settings: "wdth" 125;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  margin: 0;
+}
+p { margin: 0; max-width: 65ch; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--magenta); outline-offset: 3px; }
+
+.mono {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.rotulo {                       /* rótulos em caixa-alta, estilo margem de carta */
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--tinta-2);
+}
+
+/* Contêiner: único lugar que aplica o gutter lateral */
+.faixa { padding-left: var(--gutter); padding-right: var(--gutter-d); }
+.miolo { max-width: var(--largura); margin: 0 auto; }
+
+/* ---------- 3. Cabeçalho ---------- */
+body::before {                  /* pinta a faixa de safe-area no topo */
+  content: ""; position: fixed; inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--papel);
+}
+.topo {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9;
+  background: color-mix(in srgb, var(--papel) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--linha);
+}
+.topo .miolo {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding-block: 0.8rem;
+}
+.marca {
+  display: flex; align-items: baseline; gap: 0.15rem;
+  font-family: var(--f-display); font-variation-settings: "wdth" 125;
+  font-weight: 800; font-size: 1.2rem; text-decoration: none;
+}
+.marca .ponto { color: var(--magenta); }
+.nav { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+.nav a {
+  font-size: var(--t-sm); text-decoration: none; color: var(--tinta-2);
+}
+.nav a:hover { color: var(--tinta); }
+@media (max-width: 640px) { .nav a:not(.nav-contato) { display: none; } }
+.nav-contato { color: var(--magenta) !important; font-weight: 600; }
+
+/* ---------- 4. Hero: campo de curvas de nível ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  cursor: crosshair;
+  border-bottom: 1px solid var(--linha);
+}
+.hero canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  display: block; cursor: crosshair;
+}
+.hero .abertura {
+  position: relative;            /* acima do canvas */
+  padding-block: clamp(4rem, 11vw, 8.5rem) clamp(3rem, 7vw, 5rem);
+  pointer-events: none;          /* deixa o cursor chegar ao canvas */
+  display: grid; gap: 1.6rem;
+}
+.hero .abertura a { pointer-events: auto; }
+.hero h1 {
+  font-size: var(--t-hero); font-weight: 800;
+  max-width: 14ch;
+}
+.hero h1 em {                   /* palavra em magenta, como anotação */
+  font-style: normal; color: var(--magenta);
+}
+.hero .lead {
+  font-size: var(--t-lg); line-height: 1.45; color: var(--tinta-2);
+  max-width: 40ch;
+  /* fundo translúcido para leitura sobre as curvas */
+  background: color-mix(in srgb, var(--papel) 70%, transparent);
+}
+.acoes { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+.botao {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1.2rem; border-radius: 2px;
+  font-weight: 600; font-size: var(--t-sm); text-decoration: none;
+  border: 1.5px solid var(--tinta);
+  background: var(--tinta); color: var(--papel);
+  transition: transform .15s ease;
+}
+.botao:hover { transform: translateY(-1px); }
+.botao.vazado { background: color-mix(in srgb, var(--papel) 80%, transparent); color: var(--tinta); }
+
+/* Margem da carta: SRC, escala e leitura do cursor */
+.margem-carta {
+  position: relative;
+  display: flex; flex-wrap: wrap; gap: 0.4rem 1.6rem;
+  justify-content: space-between;
+  padding-block: 0.7rem;
+  border-top: 1px solid var(--linha);
+  color: var(--tinta-2);
+  pointer-events: none;
+}
+.margem-carta span { background: var(--papel); padding-inline: 0.3rem; margin-inline: -0.3rem; }
+.leitura b { color: var(--magenta); font-weight: 500; }
+
+/* ---------- 5. Seções ---------- */
+.secao { padding-block: clamp(4rem, 9vw, 7rem); }
+.secao + .secao { border-top: 1px solid var(--linha); }
+.secao.alterna { background: var(--papel-2); }
+.cabeca-secao {
+  display: grid; gap: 0.8rem; margin-bottom: clamp(2rem, 5vw, 3.5rem);
+}
+.cabeca-secao h2 { font-size: var(--t-xl); font-weight: 750; }
+.cabeca-secao p { color: var(--tinta-2); }
+
+/* ---------- 6. Legenda (serviços) ---------- */
+.legenda {
+  display: grid; gap: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr));
+  border-top: 1px solid var(--linha);
+}
+.item-legenda {
+  display: grid; grid-template-columns: 3.5rem 1fr; gap: 1.2rem;
+  padding: 1.8rem 1.2rem 1.8rem 0;
+  border-bottom: 1px solid var(--linha);
+  min-width: 0;
+}
+.item-legenda svg { width: 3.5rem; height: 2.4rem; overflow: visible; }
+.item-legenda h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+.item-legenda p { font-size: 0.98rem; color: var(--tinta-2); }
+.item-legenda .tags { margin-top: 0.8rem; color: var(--tinta-2); }
+
+/* ---------- 7. Trabalhos ---------- */
+.trabalhos { display: grid; gap: clamp(2.5rem, 5vw, 4rem); }
+.caso {
+  display: grid; gap: 1.2rem 3rem;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: start;
+}
+@media (max-width: 820px) { .caso { grid-template-columns: 1fr; } }
+.caso .ficha { display: grid; gap: 0.6rem; }
+.caso h3 { font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 750; }
+.caso .texto { display: grid; gap: 0.9rem; color: var(--tinta-2); min-width: 0; }
+.caso .texto strong { color: var(--tinta); font-weight: 600; }
+.metadados {
+  display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 1rem;
+  margin: 0; padding-top: 0.6rem; border-top: 1px dashed var(--linha);
+}
+.metadados dt { color: var(--tinta-2); }
+.metadados dd { margin: 0; color: var(--tinta); }
+.selo {
+  justify-self: start;
+  padding: 0.15rem 0.5rem; border: 1px solid var(--magenta);
+  color: var(--magenta); border-radius: 2px;
+}
+/* Pequeno mapa ilustrativo de cada caso (desenhado em canvas pelo JS) */
+.vinheta {
+  width: 100%; max-width: 100%; aspect-ratio: 16 / 9;
+  border: 1px solid var(--linha); display: block;
+  background: var(--papel);
+}
+
+/* ---------- 8. Método (sequência real de trabalho) ---------- */
+.etapas {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: 1.5rem 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  counter-reset: etapa;
+}
+.etapas li { counter-increment: etapa; display: grid; gap: 0.5rem; align-content: start; min-width: 0; }
+.etapas li::before {
+  content: "Etapa " counter(etapa);
+  font-family: var(--f-mono); font-size: var(--t-xs);
+  text-transform: uppercase; letter-spacing: 0.12em; color: var(--magenta);
+  padding-bottom: 0.6rem; border-bottom: 2px solid var(--curva);
+}
+.etapas h3 { font-size: 1.05rem; font-weight: 700; }
+.etapas p { font-size: 0.95rem; color: var(--tinta-2); }
+
+/* ---------- 9. Atuação e normas ---------- */
+.duas-colunas {
+  display: grid; gap: 2.5rem 4rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+}
+.biomas { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.9rem; }
+.biomas li { display: grid; grid-template-columns: 1.2rem 1fr; gap: 0.8rem; align-items: baseline; }
+.biomas .amostra { width: 1rem; height: 0.7rem; display: inline-block; border: 1px solid var(--tinta); }
+.normas { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.7rem; }
+.normas li { padding-bottom: 0.7rem; border-bottom: 1px solid var(--linha); font-size: 0.95rem; }
+.normas b { font-weight: 600; }
+.normas span { display: block; color: var(--tinta-2); font-size: 0.88rem; }
+
+/* ---------- 10. Contato ---------- */
+.contato h2 { font-size: var(--t-hero); font-weight: 800; max-width: 12ch; }
+.contato .canais {
+  display: grid; gap: 1rem 3rem; margin-top: 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+.canal { display: grid; gap: 0.3rem; padding-top: 1rem; border-top: 2px solid var(--tinta); min-width: 0; }
+.canal a, .canal span.valor {
+  font-family: var(--f-display); font-variation-settings: "wdth" 110;
+  font-size: 1.25rem; font-weight: 650; text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.canal a:hover { color: var(--magenta); }
+
+/* ---------- 11. Rodapé ---------- */
+.rodape { padding-block: 2rem; border-top: 1px solid var(--linha); color: var(--tinta-2); }
+.rodape .miolo { display: flex; flex-wrap: wrap; gap: 0.6rem 2rem; justify-content: space-between; }
+
+/* Animação de entrada do hero: parte de um estado visível */
+@media (prefers-reduced-motion: no-preference) {
+  .hero h1, .hero .lead, .hero .acoes { animation: sobe .7s ease both; }
+  .hero .lead { animation-delay: .08s; }
+  .hero .acoes { animation-delay: .16s; }
+  @keyframes sobe { from { transform: translateY(10px); opacity: .4; } to { transform: none; opacity: 1; } }
+}
