@@ -14,6 +14,16 @@ img/              favicon e, futuramente, imagens dos trabalhos
 CNAME             domínio para o GitHub Pages
 ```
 
+## Variantes visuais
+
+Além do `index.html` (folha topográfica), há duas propostas com o mesmo conteúdo:
+
+- `antiga.html`: carta náutica antiga, com litorais reais em Mercator (`css/antiga.css`, `js/antiga.js`)
+- `orbita.html`: a Terra vista do espaço, com zoom animado sobre regiões (`css/orbita.css`, `js/orbita.js`)
+
+As duas usam d3-geo (cdnjs) e `js/dados/terra.js` (Natural Earth via world-atlas, domínio público).
+O texto é editado só no `index.html`; depois rode `python3 ferramentas/gerar_variantes.py` para atualizar as variantes.
+
 ## Rodar localmente
 
 ```bash
