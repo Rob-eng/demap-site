@@ -275,6 +275,17 @@ body::before {                  /* pinta a faixa de safe-area no topo */
 .etapas h3 { font-size: 1.05rem; font-weight: 700; }
 .etapas p { font-size: 0.95rem; color: var(--tinta-2); }
 
+/* ---------- 8b. Equipe (perfis por função, sem nomes) ---------- */
+.equipe {
+  display: grid; gap: 2rem 3rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+}
+.perfil { display: grid; gap: 0.5rem; align-content: start; min-width: 0; padding-top: 1.2rem; border-top: 2px solid var(--tinta); }
+.perfil svg { width: 3.5rem; height: 2.4rem; margin-bottom: 0.4rem; }
+.perfil h3 { font-size: 1.2rem; font-weight: 750; }
+.perfil .cargo { color: var(--magenta); }
+.perfil p:last-child { color: var(--tinta-2); font-size: 0.97rem; }
+
 /* ---------- 9. Atuação e normas ---------- */
 .duas-colunas {
   display: grid; gap: 2.5rem 4rem;
