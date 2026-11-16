@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>DeMap · Inteligência geográfica</title>
   <meta name="description" content="WebGIS, geoprocessamento, automação, cultura data driven e estudos ambientais, em qualquer lugar do mundo.">
-  <meta name="theme-color" content="#e9eee8">
+  <meta name="theme-color" content="#05080f">
   <!-- Open Graph: prévia ao compartilhar o link (trocar a imagem quando houver uma) -->
   <meta property="og:title" content="DeMap · Inteligência geográfica">
   <meta property="og:description" content="WebGIS, geoprocessamento, automação, cultura data driven e estudos ambientais, em qualquer lugar do mundo.">
@@ -13,10 +13,10 @@
   <meta property="og:type" content="website">
   <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 
-  <!-- Fontes: Archivo (display, usada expandida), Public Sans (texto), IBM Plex Mono (dados) -->
+  <!-- Fontes: Unbounded (display), Manrope (texto), JetBrains Mono (dados) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600&family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
@@ -38,10 +38,9 @@
 
 <main id="inicio">
 
-  <!-- ============ Hero: carta topográfica interativa ============ -->
+  <!-- ============ Hero: a Terra vista do espaço (js/orbita.js) ============ -->
   <section class="hero" aria-labelledby="titulo-hero">
-    <canvas id="relevo" aria-hidden="true"></canvas>
-    <canvas id="mira" aria-hidden="true" style="pointer-events:none"></canvas>
+    <canvas id="globo" aria-hidden="true"></canvas>
     <div class="faixa">
       <div class="miolo abertura">
         <p class="rotulo">Inteligência geográfica · projetos em qualquer país</p>
@@ -55,8 +54,8 @@
     </div>
     <div class="faixa">
       <div class="miolo margem-carta mono">
-        <span>WGS 84 · EPSG:4326 · equidistância ilustrativa</span>
-        <span class="leitura" id="leitura" aria-live="off">Mova o cursor sobre a carta</span>
+        <span>Projeção ortográfica · WGS 84 · continentes Natural Earth</span>
+        <span class="leitura" id="leitura" aria-live="off">Pantanal · 18°30′S 57°00′O</span>
       </div>
     </div>
   </section>
@@ -329,7 +328,7 @@
   </section>
 
   <!-- ============ Contato ============
-       TODO: confirmar e-mail, WhatsApp e LinkedIn reais. -->
+       TODO: confirmar o e-mail. -->
   <section class="secao faixa contato" id="contato" aria-labelledby="titulo-contato">
     <div class="miolo">
       <p class="rotulo">Agende um atendimento</p>
@@ -342,11 +341,7 @@
         </div>
         <div class="canal">
           <span class="rotulo">WhatsApp</span>
-          <span class="valor">a definir</span>
-        </div>
-        <div class="canal">
-          <span class="rotulo">LinkedIn</span>
-          <span class="valor">a definir</span>
+          <a href="https://wa.me/5567984013193" target="_blank" rel="noopener">(67) 98401-3193</a>
         </div>
       </div>
     </div>
@@ -360,6 +355,9 @@
   </div>
 </footer>
 
-<script src="js/carta.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="js/dados/terra.js"></script>
+<script src="js/vinhetas.js" defer></script>
+<script src="js/orbita.js" defer></script>
 </body>
 </html>

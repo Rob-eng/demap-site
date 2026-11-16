@@ -1,72 +1,53 @@
 /* =====================================================================
    DeMap · demap.com.br — folha de estilo principal
    ---------------------------------------------------------------------
-   Conceito: "folha topográfica". Fundo de papel verde-acinzentado,
-   curvas de nível em sépia, água em azul, vegetação em verde e o
-   magenta de sobreimpressão (cor usada em quadrículas e anotações de
-   cartas) como único acento.
-   Layout: coluna editorial larga; o hero é um campo de curvas de nível
-   desenhado em <canvas> com leitura de coordenadas sob o cursor.
+   Conceito: painel de observação orbital. Fundo de espaço profundo,
+   oceano azul-petróleo, continentes em verde-mineral, atmosfera azul-
+   gelo e um âmbar de instrumento como único acento (marcações do HUD).
+   O hero é a Terra em projeção ortográfica (js/orbita.js) com zoom
+   animado sobre regiões; o conteúdo segue em coluna editorial larga.
+   Tema único (escuro) por escolha.
    ===================================================================== */
 
-/* ---------- 1. Tokens (tema claro = padrão) ---------- */
+/* ---------- 1. Tokens ---------- */
+:root,
+:root[data-theme="light"] {  /* tema único (escuro): vista do espaço */
+  --papel: #05080f;        /* espaço                             */
+  --papel-2: #0a101b;      /* faixas alternadas                  */
+  --tinta: #e6edf5;        /* texto                              */
+  --tinta-2: #8ea1b6;      /* texto secundário                   */
+  --curva: #6d8fb0;        /* linhas auxiliares                  */
+  --agua: #4aa3d8;         /* atmosfera / água                   */
+  --mata: #59b58e;         /* continentes                        */
+  --magenta: #ffb547;      /* âmbar de instrumento (acento)      */
+  --linha: rgba(142, 161, 182, 0.18);
+
+  --f-display: "Unbounded", "Arial Black", sans-serif;
+  --f-texto: "Manrope", "Segoe UI", Roboto, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --papel: #05080f; --papel-2: #0a101b; --tinta: #e6edf5; --tinta-2: #8ea1b6;
+    --curva: #6d8fb0; --agua: #4aa3d8; --mata: #59b58e; --magenta: #ffb547;
+    --linha: rgba(142, 161, 182, 0.18);
+    color-scheme: dark;
+  }
+}
+
+
+/* Escala tipográfica e medidas */
 :root {
-  /* Cores */
-  --papel: #e9eee8;        /* fundo, papel da carta            */
-  --papel-2: #dfe6df;      /* faixas alternadas                */
-  --tinta: #15211b;        /* texto principal                  */
-  --tinta-2: #4a5a51;      /* texto secundário                 */
-  --curva: #9a6a3a;        /* curvas de nível (sépia)          */
-  --agua: #1d5b86;         /* hidrografia                      */
-  --mata: #3f6a3c;         /* vegetação                        */
-  --magenta: #b0246a;      /* acento: sobreimpressão           */
-  --linha: rgba(21, 33, 27, 0.16); /* fios e divisórias        */
-
-  /* Tipografia */
-  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif; /* usada em largura 125 (expandida) */
-  --f-texto: "Public Sans", "Segoe UI", Roboto, sans-serif;
-  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-
-  /* Escala tipográfica (razão ~1.25) */
   --t-xs: 0.75rem;
   --t-sm: 0.875rem;
   --t-md: 1.0625rem;
   --t-lg: 1.375rem;
   --t-xl: clamp(1.75rem, 3.2vw, 2.5rem);
   --t-hero: clamp(2.4rem, 7.2vw, 5.6rem);
-
-  /* Espaçamento e medidas */
   --largura: 72rem;
   --gutter: max(16px, env(safe-area-inset-left, 0px));
   --gutter-d: max(16px, env(safe-area-inset-right, 0px));
-}
-
-/* Tema escuro: segue o sistema, a menos que o usuário force o claro */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --papel: #0f1612;
-    --papel-2: #141d18;
-    --tinta: #e4ebe5;
-    --tinta-2: #a3b2a8;
-    --curva: #c08a55;
-    --agua: #6fa8d3;
-    --mata: #86b07e;
-    --magenta: #e2589c;
-    --linha: rgba(228, 235, 229, 0.14);
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --papel: #0f1612;
-  --papel-2: #141d18;
-  --tinta: #e4ebe5;
-  --tinta-2: #a3b2a8;
-  --curva: #c08a55;
-  --agua: #6fa8d3;
-  --mata: #86b07e;
-  --magenta: #e2589c;
-  --linha: rgba(228, 235, 229, 0.14);
-  color-scheme: dark;
 }
 
 /* ---------- 2. Base ---------- */
@@ -86,8 +67,6 @@ body {
 
 h1, h2, h3 {
   font-family: var(--f-display);
-  font-stretch: 125%;           /* Archivo expandida: letreiro de carta */
-  font-variation-settings: "wdth" 125;
   line-height: 1.05;
   letter-spacing: -0.01em;
   text-wrap: balance;
@@ -133,7 +112,7 @@ body::before {                  /* pinta a faixa de safe-area no topo */
 }
 .marca {
   display: flex; align-items: baseline; gap: 0.15rem;
-  font-family: var(--f-display); font-variation-settings: "wdth" 125;
+  font-family: var(--f-display);
   font-weight: 800; font-size: 1.2rem; text-decoration: none;
 }
 .marca .ponto { color: var(--magenta); }
@@ -149,12 +128,11 @@ body::before {                  /* pinta a faixa de safe-area no topo */
 .hero {
   position: relative;
   overflow: hidden;
-  cursor: crosshair;
   border-bottom: 1px solid var(--linha);
 }
 .hero canvas {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  display: block; cursor: crosshair;
+  display: block;
 }
 .hero .abertura {
   position: relative;            /* acima do canvas */
@@ -309,7 +287,7 @@ body::before {                  /* pinta a faixa de safe-area no topo */
 }
 .canal { display: grid; gap: 0.3rem; padding-top: 1rem; border-top: 2px solid var(--tinta); min-width: 0; }
 .canal a, .canal span.valor {
-  font-family: var(--f-display); font-variation-settings: "wdth" 110;
+  font-family: var(--f-display);
   font-size: 1.25rem; font-weight: 650; text-decoration: none;
   overflow-wrap: anywhere;
 }
@@ -326,3 +304,32 @@ body::before {                  /* pinta a faixa de safe-area no topo */
   .hero .acoes { animation-delay: .16s; }
   @keyframes sobe { from { transform: translateY(10px); opacity: .4; } to { transform: none; opacity: 1; } }
 }
+
+/* ---------- 12. Ajustes da identidade orbital ---------- */
+/* Ajustes da display (Unbounded já é larga) */
+h1, h2, h3, .marca { letter-spacing: -0.02em; }
+.hero h1 { font-weight: 600 !important; font-size: clamp(2.2rem, 6vw, 4.8rem); }
+.cabeca-secao h2 { font-weight: 500; }
+h3 { font-weight: 500 !important; }
+
+/* Hero: a Terra ocupa a tela; o texto fica à esquerda */
+.hero { min-height: min(92vh, 860px); background: #05080f; }
+.hero .abertura { padding-block: clamp(5rem, 14vw, 10rem) clamp(3rem, 8vw, 6rem); }
+.hero .lead { background: transparent; text-shadow: 0 1px 12px #05080f; }
+.hero h1 { text-shadow: 0 2px 24px #05080f; }
+@media (max-width: 760px) {
+  .hero .abertura { padding-block: 22rem 3rem; } /* globo em cima, texto embaixo */
+}
+
+/* HUD: leitura de alvo, coordenadas e altitude */
+.margem-carta { background: transparent; }
+.margem-carta span { background: transparent; }
+.leitura b { color: var(--magenta); }
+
+.botao { border-radius: 999px; border-color: var(--magenta); background: var(--magenta); color: #05080f; }
+.botao.vazado { background: transparent; color: var(--tinta); border-color: var(--linha); }
+
+/* Vinhetas como telas de satélite */
+.vinheta { border-radius: 10px; border-color: var(--linha); background: #0a101b; }
+.perfil { border-top-color: var(--linha); }
+.canal { border-top-color: var(--magenta); }

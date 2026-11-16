@@ -1,12 +1,11 @@
 /* =====================================================================
-   DeMap · demap.com.br — desenhos em canvas
+   DeMap · demap.com.br — vinhetas do portfólio
    ---------------------------------------------------------------------
-   1) Hero: campo de curvas de nível gerado por ruído e "marching
-      squares", com leitura de coordenadas (WGS 84) sob o cursor,
-      mapeando a área do hero para o globo inteiro (lon ±180°, lat ±75°).
-   2) Vinhetas: pequenos mapas ilustrativos para cada caso do portfólio.
-   Sem dependências externas. Cores lidas dos tokens CSS, então os
-   desenhos acompanham o tema claro/escuro.
+   Pequenos mapas ilustrativos desenhados em <canvas> para cada caso do
+   portfólio (atributo data-tipo). Cores lidas dos tokens CSS.
+   Para trocar uma vinheta por imagem real, substitua o <canvas> por
+   <img class="vinheta" src="img/arquivo.jpg" alt="...">.
+   Sem dependências externas.
    ===================================================================== */
 (function () {
   "use strict";
@@ -28,29 +27,6 @@
     };
   }
 
-  // Ruído de valor 2D suavizado, somado em oitavas (relevo plausível)
-  function criaRuido(semente) {
-    const rnd = aleatorio(semente);
-    const N = 256, tab = new Float32Array(N * N);
-    for (let i = 0; i < tab.length; i++) tab[i] = rnd();
-    const v = (x, y) => tab[((y & (N - 1)) * N) + (x & (N - 1))];
-    const suave = (t) => t * t * (3 - 2 * t);
-    function base(x, y) {
-      const xi = Math.floor(x), yi = Math.floor(y);
-      const fx = suave(x - xi), fy = suave(y - yi);
-      const a = v(xi, yi), b = v(xi + 1, yi), c = v(xi, yi + 1), d = v(xi + 1, yi + 1);
-      return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
-    }
-    return function (x, y) {
-      let s = 0, amp = 1, freq = 1, norma = 0;
-      for (let o = 0; o < 4; o++) {
-        s += base(x * freq, y * freq) * amp;
-        norma += amp; amp *= 0.5; freq *= 2;
-      }
-      return s / norma;
-    };
-  }
-
   // Ajusta o canvas à densidade de pixels da tela
   function preparaCanvas(cv) {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -62,148 +38,7 @@
     return { ctx, w: r.width, h: r.height };
   }
 
-  /* ---------- Marching squares ----------
-     Para um nível, percorre a grade e traça os segmentos onde o campo
-     cruza esse valor (interpolação linear nas arestas da célula). */
-  function tracaNivel(ctx, campo, cols, lins, passo, nivel) {
-    ctx.beginPath();
-    for (let j = 0; j < lins - 1; j++) {
-      for (let i = 0; i < cols - 1; i++) {
-        const a = campo[j * cols + i], b = campo[j * cols + i + 1];
-        const c = campo[(j + 1) * cols + i + 1], d = campo[(j + 1) * cols + i];
-        let caso = 0;
-        if (a > nivel) caso |= 8; if (b > nivel) caso |= 4;
-        if (c > nivel) caso |= 2; if (d > nivel) caso |= 1;
-        if (caso === 0 || caso === 15) continue;
-        const x = i * passo, y = j * passo;
-        const t = (p, q) => (nivel - p) / (q - p);
-        const N = [x + t(a, b) * passo, y];            // aresta de cima
-        const E = [x + passo, y + t(b, c) * passo];    // direita
-        const S = [x + t(d, c) * passo, y + passo];    // de baixo
-        const O = [x, y + t(a, d) * passo];            // esquerda
-        const seg = (p, q) => { ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); };
-        switch (caso) {
-          case 1: case 14: seg(O, S); break;
-          case 2: case 13: seg(S, E); break;
-          case 3: case 12: seg(O, E); break;
-          case 4: case 11: seg(N, E); break;
-          case 6: case 9: seg(N, S); break;
-          case 7: case 8: seg(O, N); break;
-          case 5: seg(O, N); seg(S, E); break;
-          case 10: seg(N, E); seg(O, S); break;
-        }
-      }
-    }
-    ctx.stroke();
-  }
-
-  /* ---------- 1. Hero ---------- */
-  // Extensão mapeada no hero: o mundo todo (latitudes extremas cortadas)
-  const EXTENSAO = { oeste: -180, leste: 180, norte: 75, sul: -75 };
-
-  function grausParaDMS(v, pos, neg) {
-    const h = v < 0 ? neg : pos; v = Math.abs(v);
-    const g = Math.floor(v), m = Math.floor((v - g) * 60);
-    const s = ((v - g) * 60 - m) * 60;
-    return g + "°" + String(m).padStart(2, "0") + "′" + s.toFixed(1).padStart(4, "0") + "″" + h;
-  }
-
-  function iniciaHero() {
-    const cv = document.getElementById("relevo");
-    if (!cv) return;
-    const leitura = document.getElementById("leitura");
-    const ruido = criaRuido(1977);
-    let estado = null;
-
-    function desenha(destaque) {
-      const { ctx, w, h } = preparaCanvas(cv);
-      const passo = 8;
-      const cols = Math.ceil(w / passo) + 2, lins = Math.ceil(h / passo) + 2;
-      const campo = new Float32Array(cols * lins);
-      for (let j = 0; j < lins; j++)
-        for (let i = 0; i < cols; i++)
-          campo[j * cols + i] = ruido(i * passo / 260, j * passo / 260);
-
-      ctx.clearRect(0, 0, w, h);
-      const curva = token("--curva"), agua = token("--agua");
-
-      // Curvas de nível: equidistância fixa, mestra a cada 5
-      const niveis = 34;
-      for (let k = 1; k < niveis; k++) {
-        const nivel = 0.2 + (k / niveis) * 0.6;
-        const mestra = k % 5 === 0;
-        ctx.strokeStyle = curva;
-        ctx.globalAlpha = mestra ? 0.75 : 0.32;
-        ctx.lineWidth = mestra ? 1.3 : 0.7;
-        tracaNivel(ctx, campo, cols, lins, passo, nivel);
-      }
-
-      // "Talvegue": nível mais baixo destacado em azul (lâmina d'água)
-      ctx.globalAlpha = 0.9; ctx.strokeStyle = agua; ctx.lineWidth = 1.6;
-      tracaNivel(ctx, campo, cols, lins, passo, 0.33);
-      ctx.globalAlpha = 1;
-
-      // Quadrícula de coordenadas em magenta (sobreimpressão)
-      ctx.strokeStyle = token("--magenta"); ctx.globalAlpha = 0.18; ctx.lineWidth = 1;
-      const q = 160;
-      ctx.beginPath();
-      for (let x = q; x < w; x += q) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
-      for (let y = q; y < h; y += q) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
-      ctx.stroke(); ctx.globalAlpha = 1;
-
-      estado = { w, h, ctx };
-      if (destaque) mira(destaque.x, destaque.y);
-    }
-
-    // Retícula do cursor + leitura de coordenadas
-    function mira(x, y) {
-      if (!estado) return;
-      const { w, h } = estado;
-      const lon = EXTENSAO.oeste + (x / w) * (EXTENSAO.leste - EXTENSAO.oeste);
-      const lat = EXTENSAO.norte + (y / h) * (EXTENSAO.sul - EXTENSAO.norte);
-      const cota = Math.round(80 + ruido(x / 260 * 1, y / 260) * 900); // cota fictícia, m
-      if (leitura) {
-        leitura.innerHTML =
-          "<b>" + grausParaDMS(lat, "N", "S") + "</b> · <b>" + grausParaDMS(lon, "E", "O") +
-          "</b> · cota ≈ " + cota + " m";
-      }
-      // retícula desenhada num canvas sobreposto (não refaz as curvas)
-      const sobre = document.getElementById("mira");
-      if (!sobre) return;
-      const { ctx } = preparaCanvas(sobre);
-      ctx.clearRect(0, 0, w, h);
-      ctx.strokeStyle = token("--magenta"); ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(x - 18, y); ctx.lineTo(x - 5, y); ctx.moveTo(x + 5, y); ctx.lineTo(x + 18, y);
-      ctx.moveTo(x, y - 18); ctx.lineTo(x, y - 5); ctx.moveTo(x, y + 5); ctx.lineTo(x, y + 18);
-      ctx.stroke();
-      ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.stroke();
-    }
-
-    let ultimo = null;
-    const hero = cv.parentElement;
-    hero.addEventListener("pointermove", (e) => {
-      const r = cv.getBoundingClientRect();
-      ultimo = { x: e.clientX - r.left, y: e.clientY - r.top };
-      mira(ultimo.x, ultimo.y);
-    });
-
-    desenha();
-    // posição inicial da retícula: à direita do título, longe do texto
-    const r = cv.getBoundingClientRect();
-    const x0 = r.width * 0.72, y0 = r.height * 0.32;
-    ultimo = { x: x0, y: y0 };
-    mira(x0, y0);
-
-    // redesenha ao redimensionar e ao trocar de tema
-    let tempo;
-    const refaz = () => { clearTimeout(tempo); tempo = setTimeout(() => desenha(ultimo), 120); };
-    window.addEventListener("resize", refaz);
-    matchMedia("(prefers-color-scheme: dark)").addEventListener("change", refaz);
-    new MutationObserver(refaz).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-  }
-
-  /* ---------- 2. Vinhetas dos casos ---------- */
+  /* ---------- Vinhetas dos casos ---------- */
 
   // Polígono irregular em torno de um centro (imóvel, mancha etc.)
   function poligono(rnd, cx, cy, raio, lados, irreg) {
@@ -339,7 +174,7 @@
   }
 
   // As fontes mudam a métrica do texto nos canvases; espera carregarem
-  function inicia() { iniciaHero(); iniciaVinhetas(); }
+  function inicia() { iniciaVinhetas(); }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(inicia);
   else window.addEventListener("load", inicia);
 

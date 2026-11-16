@@ -2,27 +2,19 @@
 
 Site institucional e portfólio da **DeMap**: inteligência geográfica, automação de estudos ambientais, análise geoespacial e WebGIS para projetos em qualquer lugar do mundo.
 
-Site estático, sem build: HTML, CSS e JavaScript puros. Abre direto no navegador.
+Site estático, sem build: HTML, CSS e JavaScript puros. A única dependência externa é o d3 (cdnjs), usado no globo do topo.
 
 ## Estrutura
 
 ```
-index.html        página única (seções: serviços, trabalhos, método, atuação, contato)
-css/estilo.css    tokens de cor/tipografia (tema claro e escuro) e layout
-js/carta.js       desenhos em canvas: curvas de nível do hero e vinhetas dos casos
+index.html        página única (serviços, trabalhos, método, equipe, atuação, contato)
+css/estilo.css    tokens de cor/tipografia (tema escuro único) e layout
+js/orbita.js      hero: a Terra em projeção ortográfica com zoom animado (d3-geo)
+js/dados/terra.js continentes e fronteiras (Natural Earth via world-atlas, domínio público)
+js/vinhetas.js    pequenos mapas ilustrativos dos casos do portfólio
 img/              favicon e, futuramente, imagens dos trabalhos
 CNAME             domínio para o GitHub Pages
 ```
-
-## Variantes visuais
-
-Além do `index.html` (folha topográfica), há duas propostas com o mesmo conteúdo:
-
-- `antiga.html`: carta náutica antiga, com litorais reais em Mercator (`css/antiga.css`, `js/antiga.js`)
-- `orbita.html`: a Terra vista do espaço, com zoom animado sobre regiões (`css/orbita.css`, `js/orbita.js`)
-
-As duas usam d3-geo (cdnjs) e `js/dados/terra.js` (Natural Earth via world-atlas, domínio público).
-O texto é editado só no `index.html`; depois rode `python3 ferramentas/gerar_variantes.py` para atualizar as variantes.
 
 ## Rodar localmente
 
@@ -46,4 +38,5 @@ python3 -m http.server 8000
 - Trocar a vinheta de um caso por imagem real: substituir o `<canvas class="vinheta">` por
   `<img class="vinheta" src="img/arquivo.jpg" alt="descrição">`.
 - Cores e fontes: bloco `:root` no topo de `css/estilo.css`.
-- Contato: bloco `Contato` em `index.html` (marcado com `TODO`).
+- Regiões do tour do globo: lista `ALVOS` no topo de `js/orbita.js` (nome, longitude, latitude, zoom).
+- Contato: bloco `Contato` em `index.html` (o e-mail ainda está marcado com `TODO`).
